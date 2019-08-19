@@ -26,8 +26,8 @@ public class RegionService {
                         .collect(Collectors.toList());
     }
 
-    public RegionDto findSmallestRegions() {
-        return Optional.ofNullable(regionRepositorySupport.findSmallestMinRateRegions())
+    public RegionDto findSmallestMaxRateRegion() {
+        return Optional.ofNullable(regionRepositorySupport.findSmallestMaxRateRegion())
                         .map(RegionDto::of)
                         .orElseThrow(EntityNotFoundException::new);
     }

@@ -20,7 +20,7 @@ import java.util.List;
 public class CsvReadService {
 
     private static final String CSV_PATH = "data/";
-    private static final String CSV_FILE_NAME = "서버개발_사전과제1_지자체협약지원정보_16년12월현재__최종.csv";
+    private static final String CSV_FILE_NAME = "Data.csv";
     private static final String CSV_SPLITTER = ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
     private static final String REGION_PREFIX = "reg";
 

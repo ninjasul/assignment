@@ -31,7 +31,7 @@ public class RegionRepositorySupport extends QuerydslRepositorySupport {
                 .fetch();
     }
 
-    public Region findSmallestMinRateRegions() {
+    public Region findSmallestMaxRateRegion() {
         return queryFactory.selectFrom($)
                 .innerJoin(QSupport.support).on($.code.eq(QSupport.support.region.code))
                 .orderBy(QSupport.support.maxRate.asc())

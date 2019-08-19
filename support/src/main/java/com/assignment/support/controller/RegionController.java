@@ -28,6 +28,6 @@ public class RegionController {
 
     @GetMapping(value = "/smallest")
     public RegionDto querySmallestRegions() {
-        return regionService.findSmallestRegions();
+        return regionService.findSmallestMaxRateRegion();
     }
 }
