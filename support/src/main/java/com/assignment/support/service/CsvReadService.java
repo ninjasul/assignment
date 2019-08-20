@@ -4,24 +4,25 @@ import com.assignment.support.repository.RegionRepository;
 import com.assignment.support.repository.SupportRepository;
 import com.assignment.support.entity.Region;
 import com.assignment.support.entity.Support;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ResourceUtils;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 @Slf4j
 @Service
 public class CsvReadService {
 
-    private static final String CSV_PATH = "data/";
+    private static final String CSV_PATH = "/static/";
     private static final String CSV_FILE_NAME = "Data.csv";
     private static final String CSV_SPLITTER = ",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)";
     private static final String REGION_PREFIX = "reg";
@@ -32,9 +33,6 @@ public class CsvReadService {
     @Autowired
     RegionRepository regionRepository;
 
-    @Autowired
-    private ObjectMapper objectMapper = new ObjectMapper();
-
     @Transactional
     public void readCsvAndSaveDb() throws Exception {
         String line;
@@ -43,7 +41,7 @@ public class CsvReadService {
         List<Region> regions = new ArrayList<>();
         List<Support> supports = new ArrayList<>();
 
-        BufferedReader br = new BufferedReader(new FileReader(ResourceUtils.getFile("classpath:" + CSV_PATH + CSV_FILE_NAME)));
+        BufferedReader br = new BufferedReader(new InputStreamReader(new ClassPathResource(CSV_PATH + CSV_FILE_NAME).getInputStream(), UTF_8));
 
         while ((line = br.readLine()) != null) {
             if (lineCount > 0) {
