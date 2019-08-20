@@ -8,8 +8,8 @@
         <version>2.1.7.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.kakaopay.assignment</groupId>
-    <artifactId>region</artifactId>
+    <groupId>com.assignment</groupId>
+    <artifactId>support</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>support</name>
     <description>APIs for supporting local authorities</description>

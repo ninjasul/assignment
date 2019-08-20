@@ -1,18 +1,16 @@
 package com.assignment.support.service;
 
+import com.assignment.support.base.BaseRepositoryTest;
 import com.assignment.support.dto.RegionDto;
 import com.assignment.support.dto.SupportDto;
-import com.assignment.support.entity.Support;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.InvalidDataAccessApiUsageException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.util.Comparator;
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
@@ -21,22 +19,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class SupportServiceTest extends BaseServiceTest {
-    private static Random random = new Random();
-
+public class SupportServiceTest extends BaseRepositoryTest {
     @Autowired
     private SupportService supportService;
-
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-    }
 
     @Test
     public void findAll() {
         List<SupportDto> foundDtos = supportService.findAll();
-        List<SupportDto> dtos = getAllSupports();
+        List<SupportDto> dtos = getAllSupportDtos();
 
         assertThat(foundDtos).isNotNull();
         assertThat(foundDtos.size()).isEqualTo(dtos.size());
@@ -53,15 +43,15 @@ public class SupportServiceTest extends BaseServiceTest {
         }
     }
 
-    private List<SupportDto> getAllSupports() {
-        return supports.stream()
-                .map(SupportDto::of)
-                .collect(Collectors.toList());
+    @Test(expected = EntityNotFoundException.class)
+    public void findByRegionName_for_wrong_region() {
+        RegionDto regionDto = new RegionDto("LA");
+        supportService.findByRegionName(regionDto);
     }
 
     @Test
     public void findByRegionName() {
-        List<SupportDto> supportDtos = getAllSupports();
+        List<SupportDto> supportDtos = getAllSupportDtos();
 
         for (int i = 0; i < supportDtos.size(); ++i ) {
             SupportDto foundDto = supportService.findByRegionName(new RegionDto(supportDtos.get(i).getRegion()));
@@ -78,11 +68,43 @@ public class SupportServiceTest extends BaseServiceTest {
         }
     }
 
-    private List<SupportDto> findByRegionName(String region) {
-        return supports.stream()
-                .filter(s -> region.equals(s.getRegion().getName()))
-                .map(SupportDto::of)
-                .collect(Collectors.toList());
+    @Test(expected = EntityNotFoundException.class)
+    public void updateByRegionName_for_wrong_region() {
+        SupportDto supportDto = SupportDto.builder()
+                .region("뉴욕시")
+                .build();
+
+        supportService.updateByRegionName(supportDto);
+    }
+
+    @Test(expected = DataIntegrityViolationException.class)
+    public void updateByRegionName_for_null_rate() {
+        SupportDto supportDto = SupportDto.builder()
+                .region(regions.get(0).getName())
+                .rate(null)
+                .build();
+
+        supportService.updateByRegionName(supportDto);
+    }
+
+    @Test(expected = DataIntegrityViolationException.class)
+    public void updateByRegionName_for_empty_rate() {
+        SupportDto supportDto = SupportDto.builder()
+                .region(regions.get(0).getName())
+                .rate("")
+                .build();
+
+        supportService.updateByRegionName(supportDto);
+    }
+
+    @Test(expected = DataIntegrityViolationException.class)
+    public void updateByRegionName_for_wrong_rate() {
+        SupportDto supportDto = SupportDto.builder()
+                .region(regions.get(0).getName())
+                .rate("잘못된 보전 비율")
+                .build();
+
+        supportService.updateByRegionName(supportDto);
     }
 
     @Test
@@ -102,41 +124,5 @@ public class SupportServiceTest extends BaseServiceTest {
             assertThat(updatedDto.getMgmt()).isEqualTo(updatedDtos.get(i).getMgmt());
             assertThat(updatedDto.getReception()).isEqualTo(updatedDtos.get(i).getReception());
         }
-    }
-
-    private List<SupportDto> getUpdatedSupportDtos(String updated) {
-
-        return supports.stream()
-                        .map(SupportDto::of)
-                        .map(dto -> SupportDto.builder()
-                                .region(dto.getRegion())
-                                .target(appendPrefix(updated, dto.getTarget()))
-                                .usage(appendPrefix(updated, dto.getUsage()))
-                                .limits(getRandomLimits())
-                                .rate(getRandomRate())
-                                .institute(appendPrefix(updated, dto.getInstitute()))
-                                .mgmt(appendPrefix(updated, dto.getMgmt()))
-                                .reception(appendPrefix(updated, dto.getReception()))
-                                .build()
-                        )
-                        .collect(Collectors.toList());
-    }
-
-    private String getRandomLimits() {
-        return random.nextInt(300) + "억원 이내";
-    }
-
-    private String getRandomRate() {
-        return random.nextInt(10) + random.nextFloat()  + "%~" +
-                (10 + random.nextInt(10) + random.nextFloat()) + "%";
-    }
-    private String appendPrefix(String updated, String original) {
-        return updated + " " + original;
-    }
-
-    @Override
-    @After
-    public void tearDown() throws Exception {
-        super.tearDown();
     }
 }

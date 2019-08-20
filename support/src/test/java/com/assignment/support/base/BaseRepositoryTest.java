@@ -1,26 +1,24 @@
-package com.assignment.support.service;
+package com.assignment.support.base;
 
+import com.assignment.support.dto.RegionDto;
+import com.assignment.support.dto.SupportDto;
 import com.assignment.support.entity.Region;
 import com.assignment.support.entity.Support;
 import com.assignment.support.repository.RegionRepository;
 import com.assignment.support.repository.SupportRepository;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
-public class BaseServiceTest {
-    protected static List<Region> regions = new ArrayList<>();
-    protected static List<Support> supports = new ArrayList<>();
+public class BaseRepositoryTest {
+    private static Random random = new Random();
+
+    protected List<Region> regions = new ArrayList<>();
+    protected List<Support> supports = new ArrayList<>();
 
     @Autowired
     protected RegionRepository regionRepository;
@@ -28,8 +26,8 @@ public class BaseServiceTest {
     @Autowired
     protected SupportRepository supportRepository;
 
-    @BeforeClass
-    public static void setUpClass() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         regions.add(new Region("testRgn0001", "경기도"));
         regions.add(new Region("testRgn0002", "부산광역시"));
         regions.add(new Region("testRgn0003", "대구광역시"));
@@ -108,17 +106,88 @@ public class BaseServiceTest {
                 .reception("취급점6")
                 .createdTime(LocalDateTime.now())
                 .build());
-    }
 
-    @Before
-    public void setUp() throws Exception {
-        regionRepository.saveAll(regions);
+        //regionRepository.saveAll(regions);
         supportRepository.saveAll(supports);
     }
 
     @After
     public void tearDown() throws Exception {
         supportRepository.deleteAll();
-        regionRepository.deleteAll();
+        //regionRepository.deleteAll();
+    }
+
+    protected List<SupportDto> getAllSupportDtos() {
+        return supports.stream()
+                .map(SupportDto::of)
+                .collect(Collectors.toList());
+    }
+
+    protected List<RegionDto> getAllRegionDtos() {
+        return regions.stream()
+                .map(RegionDto::of)
+                .collect(Collectors.toList());
+    }
+
+    protected List<Region> getSortedBestSupportRegions(int count) {
+        return supports.stream()
+                .sorted(Comparator.comparing(Support::getLimitAmount)
+                        .reversed()
+                        .thenComparing(Support::getAvgRate))
+                .limit(count)
+                .map(Support::getRegion)
+                .collect(Collectors.toList());
+    }
+
+    protected List<RegionDto> getSortedBestSupportRegionDtos(int count) {
+        return getSortedBestSupportRegions(count)
+                .stream()
+                .map(RegionDto::of)
+                .collect(Collectors.toList());
+    }
+
+    protected Region getSortedSmallestMaxRateRegion() {
+        return supports.stream()
+                .sorted(Comparator.comparing(Support::getMaxRate))
+                .limit(1)
+                .map(Support::getRegion)
+                .findFirst()
+                .get();
+    }
+
+    protected RegionDto getSortedSmallestMaxRateRegionDto() {
+        return Optional.of(getSortedSmallestMaxRateRegion())
+                .map(RegionDto::of)
+                .get();
+    }
+
+    protected List<SupportDto> getUpdatedSupportDtos(String updated) {
+        return supports.stream()
+                .map(SupportDto::of)
+                .map(dto -> SupportDto.builder()
+                        .region(dto.getRegion())
+                        .target(appendPrefix(updated, dto.getTarget()))
+                        .usage(appendPrefix(updated, dto.getUsage()))
+                        .limits(getRandomLimits())
+                        .rate(getRandomRate())
+                        .institute(appendPrefix(updated, dto.getInstitute()))
+                        .mgmt(appendPrefix(updated, dto.getMgmt()))
+                        .reception(appendPrefix(updated, dto.getReception()))
+                        .build()
+                )
+                .collect(Collectors.toList());
+    }
+
+    protected String getRandomLimits() {
+        return random.nextInt(300) + (random.nextBoolean() ? "억원 이내" : "백만원 이내");
+    }
+
+    protected String getRandomRate() {
+        return random.nextInt(10) + random.nextFloat()  + "%~" +
+                (10 + random.nextInt(10) + random.nextFloat()) + "%";
+    }
+
+    protected String appendPrefix(String updated, String original) {
+        return updated + " " + original;
     }
 }

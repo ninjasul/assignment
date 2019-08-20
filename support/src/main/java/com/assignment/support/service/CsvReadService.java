@@ -4,9 +4,11 @@ import com.assignment.support.repository.RegionRepository;
 import com.assignment.support.repository.SupportRepository;
 import com.assignment.support.entity.Region;
 import com.assignment.support.entity.Support;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ResourceUtils;
 
 import java.io.BufferedReader;
@@ -30,8 +32,12 @@ public class CsvReadService {
     @Autowired
     RegionRepository regionRepository;
 
+    @Autowired
+    private ObjectMapper objectMapper = new ObjectMapper();
+
+    @Transactional
     public void readCsvAndSaveDb() throws Exception {
-        String line = "";
+        String line;
         int lineCount = 0;
 
         List<Region> regions = new ArrayList<>();
@@ -49,7 +55,7 @@ public class CsvReadService {
             lineCount++;
         }
 
-        regionRepository.saveAll(regions);
+        //regionRepository.saveAll(regions);
         supportRepository.saveAll(supports);
     }
 

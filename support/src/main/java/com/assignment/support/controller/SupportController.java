@@ -43,7 +43,7 @@ public class SupportController {
     }
 
     @PutMapping(consumes = APPLICATION_JSON_UTF8_VALUE)
-    public BaseResponseDto querySupport(@Valid @RequestBody SupportDto supportDto) {
+    public BaseResponseDto updateSupport(@Valid @RequestBody SupportDto supportDto) {
         supportService.updateByRegionName(supportDto);
         return new BaseResponseDto(SUCCESS);
     }

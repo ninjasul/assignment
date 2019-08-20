@@ -1,7 +1,6 @@
 package com.assignment.support.entity;
 
 import com.assignment.support.dto.SupportDto;
-import com.assignment.support.util.StringUtil;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
@@ -28,7 +27,7 @@ public class Support {
     @Id @GeneratedValue
     private Long id;
 
-    @OneToOne
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_support_to_region"), unique = true)
     private Region region;
 
@@ -36,9 +35,10 @@ public class Support {
 
     private String usage;
 
+    @Column(nullable=false)
     private String limits;
 
-    @Column(name="limit_amount", nullable=false)
+    @Column(name="limit_amount")
     private Long limitAmount;
 
     @Column(nullable=false)
@@ -108,32 +108,24 @@ public class Support {
     }
 
     public void update(SupportDto dto) {
-        this.target = StringUtil.isEmptyDefault(dto.getTarget(), target);
-        this.usage = StringUtil.isEmptyDefault(dto.getUsage(), usage);
-        this.limits = StringUtil.isEmptyDefault(dto.getLimits(), limits);
+        this.target = dto.getTarget();
+        this.usage = dto.getUsage();
+        this.limits = dto.getLimits();
         setLimitAmount(limits);
-        this.rate = StringUtil.isEmptyDefault(dto.getRate(), rate);
+        this.rate = dto.getRate();
         setRates(rate);
-        this.institute = StringUtil.isEmptyDefault(dto.getInstitute(), institute);
-        this.mgmt = StringUtil.isEmptyDefault(dto.getMgmt(), mgmt);
-        this.reception = StringUtil.isEmptyDefault(dto.getReception(), reception);
+        this.institute = dto.getInstitute();
+        this.mgmt = dto.getMgmt();
+        this.reception = dto.getReception();
         this.modifiedTime = LocalDateTime.now();
     }
 
-    private void setLimitAmount(String limits) {
+    public void setLimitAmount(String limits) {
         this.limitAmount = Amount.calculateAmount(limits);
     }
 
-    Integer getIntegerAmount(String limits) {
-        return Optional.ofNullable(limits)
-                .map(l -> l.replaceAll("[^\\d]", ""))
-                .filter(l -> !StringUtils.isEmpty(l))
-                .map(Integer::parseInt)
-                .orElse(0);
-    }
-
     void setRates(String rate) {
-        if (StringUtils.isEmpty(rate)) {
+        if (rate == null) {
             minRate = Float.MAX_VALUE;
             maxRate = Float.MAX_VALUE;
             avgRate = Float.MAX_VALUE;
@@ -147,19 +139,36 @@ public class Support {
             return;
         }
 
-        List<Float> rates = Arrays.stream(rate.split(RATE_SPLITTER))
-                .map(r -> r.replaceAll(PERCENTAGE, ""))
-                .map(Float::parseFloat)
-                .collect(Collectors.toList());
+        setRates(parseRates(rate));
+    }
 
-        if (rates.size() == 1) {
+    private List<Float> parseRates(String rate) {
+        try {
+            return Arrays.stream(rate.split(RATE_SPLITTER))
+                    .map(r -> r.replaceAll(PERCENTAGE, ""))
+                    .map(Float::parseFloat)
+                    .filter(r -> r <= 100.0f)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private void setRates(List<Float> rates) {
+        if (rates == null || rates.size() <= 0) {
+            minRate = Float.MAX_VALUE;
+            maxRate = Float.MAX_VALUE;
+            avgRate = Float.MAX_VALUE;
+        }
+        else if (rates.size() == 1) {
             minRate = rates.get(0);
             maxRate = rates.get(0);
             avgRate = (minRate + maxRate)/2;
         }
-        else if(rates.size() > 1) {
-            minRate = rates.get(0);
-            maxRate = rates.get(1);
+        else {
+            minRate = (Float.compare(rates.get(0), rates.get(1)) >= 0) ? rates.get(1) : rates.get(0);
+            maxRate = (Float.compare(rates.get(0), rates.get(1)) < 0) ? rates.get(1) : rates.get(0);
             avgRate = (minRate + maxRate)/2;
         }
     }

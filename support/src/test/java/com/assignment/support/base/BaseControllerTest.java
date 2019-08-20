@@ -1,4 +1,4 @@
-package com.assignment.support.controller;
+package com.assignment.support.base;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Ignore;
@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Ignore
-public class BaseControllerTest {
+public class BaseControllerTest extends BaseRepositoryTest {
 
     @Autowired
     protected MockMvc mockMvc;

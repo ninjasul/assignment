@@ -10,4 +10,13 @@ public class StringUtil {
             return str;
         }
     }
+
+    public static String isNullDefault(final String str, final String defaultStr) {
+        if (str == null) {
+            return defaultStr;
+        } else {
+            return str;
+        }
+    }
+
 }

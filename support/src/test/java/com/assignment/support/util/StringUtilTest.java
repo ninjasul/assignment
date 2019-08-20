@@ -7,25 +7,25 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class StringUtilTest {
 
     @Test
-    public void isEmptyDefault_for_null() {
+    public void isNullDefault_for_null() {
         String defaultString = "default";
 
-        assertThat(StringUtil.isEmptyDefault(null, defaultString)).isEqualTo(defaultString);
+        assertThat(StringUtil.isNullDefault(null, defaultString)).isEqualTo(defaultString);
     }
 
     @Test
-    public void isEmptyDefault_for_empty() {
+    public void isNullDefault_for_empty() {
         String defaultString = "default";
 
-        assertThat(StringUtil.isEmptyDefault("", defaultString)).isEqualTo(defaultString);
+        assertThat(StringUtil.isNullDefault("", defaultString)).isEqualTo("");
     }
 
     @Test
-    public void isEmptyDefault() {
+    public void isNullDefault() {
         String originalString = "original";
         String defaultString = "default";
 
-        assertThat(StringUtil.isEmptyDefault(originalString, defaultString)).isEqualTo(originalString);
+        assertThat(StringUtil.isNullDefault(originalString, defaultString)).isEqualTo(originalString);
     }
 
 }
