@@ -1,4 +1,4 @@
-package com.assignment.support.common;
+package com.assignment.support.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Ignore;
@@ -22,9 +22,4 @@ public class BaseControllerTest {
 
     @Autowired
     protected ObjectMapper objectMapper;
-
-/*
-    @Autowired
-    protected ModelMapper modelMapper;
-*/
 }
