@@ -1,9 +1,9 @@
 ## 과제 설명
 * 개발 프레임워크: 스프링 부트 JPA 2.1.7, maven 사용. DB는 H2 메모리 DB사용.
 * 빌드/애플리케이션 구동 방법 
-    - 프로젝트 루트 경로의 터미널 상에서 "mvn clean package" (테스트 수행) 혹은 
+    - support 디렉토리 내의 터미널 상에서 "mvn clean package" (테스트 수행) 혹은 
  "mvn clean package -DskipTests"(테스트 생략) 명령어를 수행
-    - 빌드가 성공 하면 "프로젝트 루트 경로/target" 경로에 jar파일이 생성됨
+    - 빌드가 성공 하면 "support/target/" 경로에 jar파일이 생성됨
     - "java -jar 'jar파일명'" 명령어로 애플리케이션을 실행함
         - 예를 들어 jar 파일명이 support-0.0.1-SNAPSHOT.jar 인 경우 
         "java -jar support-0.0.1-SNAPSHOT.jar" 수행
@@ -36,8 +36,8 @@
         - URL: http://localhost:8080/api/region/best/{조회개수}
         
     - 이차보전 컬럼에서 보전 비율이 가장 작은 추천 기관명을 출력하는 API
-          - 메소드: GET           
-          - URL: http://localhost:8080/api/region/smallest/
+        - 메소드: GET           
+        - URL: http://localhost:8080/api/region/smallest/
 
 * DB 접속 방법
     - 접속 주소: http://localhost:8080/h2-console/

@@ -20,37 +20,22 @@ public class BaseControllerAdvice {
 
     @ExceptionHandler(EntityNotFoundException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public BaseResponseDto emptyResultData() {
-        log.error("EntityNotFoundException occurred!");
+    public BaseResponseDto notFound(Exception e) {
+        e.printStackTrace();
         return new BaseResponseDto(NOT_FOUND);
     }
 
-    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ExceptionHandler({DataIntegrityViolationException.class, InvalidDataAccessApiUsageException.class,NumberFormatException.class})
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public BaseResponseDto wrongData() {
-        log.error("DataIntegrityViolationException occurred!");
+    public BaseResponseDto badRequest(Exception e) {
+        e.printStackTrace();
         return new BaseResponseDto(FAIL);
     }
-
-    @ExceptionHandler(InvalidDataAccessApiUsageException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public BaseResponseDto wrongData2() {
-        log.error("InvalidDataAccessApiUsageException occurred!");
-        return new BaseResponseDto(FAIL);
-    }
-
-    @ExceptionHandler(NumberFormatException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public BaseResponseDto wrongNumberData() {
-        log.error("NumberFormatException occurred!");
-        return new BaseResponseDto(FAIL);
-    }
-
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-    public BaseResponseDto exceptionOccurred() {
-        log.error("Exception occurred!");
+    public BaseResponseDto exceptionOccurred(Exception e) {
+        e.printStackTrace();
         return new BaseResponseDto(FAIL);
     }
 }
